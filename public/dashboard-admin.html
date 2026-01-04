@@ -229,17 +229,31 @@ function loadAPI() {
             const tbody = document.querySelector("#apiTable tbody");
             tbody.innerHTML = "";
 
+            if (data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada API Key ditemukan</td></tr>";
+                return;
+            }
+
             data.forEach(key => {
+                // Logika penentuan status active/expired
+                const expiryDate = new Date(key.out_of_date);
+                const isExpired = new Date() > expiryDate;
+                
                 tbody.innerHTML += `
                     <tr>
                         <td>${key.id}</td>
-                        <td>${key.KeyValue}</td>
-                        <td>${new Date() > new Date(key.out_of_date) ? 'expired' : 'active'}</td>
+                        <td><code>${key.KeyValue}</code></td>
+                        <td>
+                            <span style="color: ${isExpired ? '#ff5252' : '#2ecc71'}; font-weight: bold;">
+                                ${isExpired ? 'expired' : 'active'}
+                            </span>
+                        </td>
                         <td>${key.out_of_date ? key.out_of_date.split(" ")[0] : '-'}</td>
                     </tr>
                 `;
             });
-        });
+        })
+        .catch(err => console.error("Error loading API keys:", err));
 }
 
 function logout() {

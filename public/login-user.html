@@ -2,34 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login - Bright Elegant Edition</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #02121b; color: #e8ffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { width: 350px; padding: 30px; background: rgba(0, 40, 60, 0.8); border-radius: 12px; border: 1px solid #0099cc; box-shadow: 0 0 15px #00eaff55; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #066; background: #022530; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: linear-gradient(to right, #006666, #009999); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
-        .msg { color: #00ffcc; font-size: 14px; text-align: center; margin-bottom: 10px; display: none; }
+        /* Menggunakan font yang bersih dan modern */
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: #f8f9fa; /* Latar belakang cerah */
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(184, 134, 11, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 123, 255, 0.03) 0%, transparent 40%);
+            color: #333; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        /* Card Putih Bersih dengan Shadow Lembut */
+        .login-box { 
+            width: 380px; 
+            padding: 50px 40px; 
+            background: #ffffff; 
+            border-radius: 4px; /* Sudut tajam untuk kesan formal */
+            border: 1px solid rgba(184, 134, 11, 0.15); 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        h2 { 
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #a67c00; /* Gold yang lebih cerah */
+            font-size: 1.3rem;
+        }
+
+        /* Input Minimalis dengan Underline Gray */
+        input { 
+            width: 100%; 
+            padding: 12px 5px; 
+            margin: 15px 0; 
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            background: transparent; 
+            color: #333; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: all 0.4s ease;
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-bottom: 1px solid #a67c00;
+        }
+
+        /* Tombol Gold yang Elegan */
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 40px;
+            background: transparent;
+            border: 1px solid #a67c00;
+            color: #a67c00; 
+            cursor: pointer; 
+            font-weight: 400; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 11px;
+            transition: all 0.4s ease;
+        }
+
+        button:hover { 
+            background: #a67c00;
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(166, 124, 0, 0.15);
+        }
+
+        .msg { 
+            color: #a67c00; 
+            font-size: 11px; 
+            background: #fffcf0;
+            border: 1px solid rgba(166, 124, 0, 0.2);
+            padding: 10px;
+            margin-bottom: 25px;
+            display: none; 
+            letter-spacing: 1px;
+        }
+
+        .footer-text {
+            margin-top: 35px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: #999;
+        }
+
+        a {
+            text-decoration: none;
+            color: #666;
+            transition: 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+
+        a:hover {
+            color: #a67c00;
+            border-bottom: 1px solid #a67c00;
+        }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <h2 style="text-align: center; color: #00d0ff;">User Login</h2>
+        <h2>Login User</h2>
         <div id="statusMsg" class="msg"></div>
         
-        <input type="email" id="email" placeholder="Email User">
-        <input type="password" id="password" placeholder="Password User">
-        <button onclick="doLogin()">Login ke Dashboard</button>
+        <input type="email" id="email" placeholder="EMAIL ADDRESS">
+        <input type="password" id="password" placeholder="PASSWORD">
+        <button onclick="doLogin()">Login</button>
         
-        <p style="text-align: center; font-size: 13px; margin-top: 15px;">
-            Belum punya akun? <a href="/" style="color: #00d0ff;">Daftar di sini</a>
+        <p class="footer-text">
+            Tidak memiliki akun? <a href="/">Register</a>
         </p>
     </div>
 
     <script>
+        // Logika login tetap sama sesuai file asli Anda
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('reg') === 'success') {
             const msg = document.getElementById('statusMsg');
-            msg.innerText = "Registrasi Berhasil! Silakan Login.";
+            msg.innerText = "REGISTRATION SUCCESSFUL. PLEASE SIGN IN.";
             msg.style.display = 'block';
         }
 
@@ -45,30 +147,12 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = "/dashboard-user";
+                    window.location.href = data.redirect;
                 } else {
-                    alert(data.message || "Email atau Password salah!");
+                    alert(data.message || "Invalid Email or Password.");
                 }
-            });
-        }
-        function doLogin() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-
-            fetch("/login/user", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ email, password })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Browser akan berpindah ke halaman dashboard-user.html
-                    window.location.href = data.redirect; 
-                } else {
-                    alert(data.message);
-                }
-            });
+            .catch(err => console.error("Login error:", err));
         }
     </script>
 </body>

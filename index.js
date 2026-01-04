@@ -3,12 +3,11 @@ const path = require('path');
 const crypto = require('crypto');
 const mysql = require('mysql2');
 const cors = require("cors");
-const adminRoutes = require('./routes/admin'); // Pastikan file ini ada
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const port = 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -16,11 +15,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/admin-api', adminRoutes);
 
-// Database Connection
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    port: 3308, // Sesuaikan dengan port MySQL Anda
+    port: 3308, 
     password: 'Deandwib12345*',
     database: 'apikeyyy'
 });
@@ -57,22 +55,22 @@ app.post('/check', (req, res) => {
 });
 
 // ===========================
-// 2. USER AUTH & REGISTRATION
+// 2. USER AUTH & REGISTRATION (UPDATED)
 // ===========================
-//
-//
-// Route untuk Register User
+
+// Route untuk Register User (index.js)
 app.post('/register/user', (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
-    const sql = "INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
+    const { first_name, last_name, email, password, role } = req.body; // Ambil role dari body
     
-    db.query(sql, [first_name, last_name, email, password], (err) => {
+    // Query harus menyertakan kolom role
+    const sql = "INSERT INTO user (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)";
+    
+    db.query(sql, [first_name, last_name, email, password, role || 'user'], (err) => {
         if (err) {
-            console.error(err);
-            return res.status(500).send("Gagal daftar user");
+            console.error("Database Error:", err); // Lihat detail error di terminal
+            return res.status(500).send("Gagal daftar user"); // Ini pesan yang muncul di gambar Anda
         }
-        // Redirect ke halaman login yang baru saja di-rename
-        res.redirect('/login-user.html?reg=success'); 
+        res.redirect('/login-user.html?reg=success');
     });
 });
 
@@ -82,14 +80,74 @@ app.post('/login/user', (req, res) => {
     
     db.query(sql, [email, password], (err, results) => {
         if (err) return res.status(500).json({ success: false });
+        
         if (results.length > 0) {
-            // Arahkan ke file fisik .html di folder public
-            res.json({ success: true, redirect: "/dashboard-user.html" });
+            const user = results[0];
+            // Logika pengalihan berdasarkan role di database
+            let redirectPath = "/dashboard-user.html";
+            if (user.role === 'admin') {
+                redirectPath = "/dashboard-admin.html";
+            }
+            
+            res.json({ success: true, redirect: redirectPath });
         } else {
             res.json({ success: false, message: "Email atau Password salah!" });
         }
     });
 });
+
+// ===========================
+// ENDPOINT UNTUK DASHBOARD ADMIN
+// ===========================
+
+// 1. Ambil List User dari Database
+app.get('/get/users', (req, res) => {
+    const sql = "SELECT id, first_name, last_name, email, created_at FROM user";
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Gagal mengambil data user" });
+        }
+        res.json(results);
+    });
+});
+
+// 2. Ambil List API Keys dari Database
+app.get('/get/apikeys', (req, res) => {
+    // Sesuaikan KeyValue dan out_of_date dengan nama kolom di MySQL Anda
+    const sql = "SELECT id, KeyValue, out_of_date FROM api_key";
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("Error fetching API keys:", err);
+            return res.status(500).json({ error: "Gagal mengambil data" });
+        }
+        res.json(results);
+    });
+});
+// 3. Endpoint Hapus User (Tambahan agar tombol hapus berfungsi)
+app.delete('/user/delete/:id', (req, res) => {
+    const id = req.params.id;
+    db.query("DELETE FROM user WHERE id = ?", [id], (err) => {
+        if (err) return res.status(500).json({ message: "Gagal menghapus user" });
+        res.json({ message: "User berhasil dihapus" });
+    });
+});
+
+// 4. Endpoint Update User (Tambahan agar tombol edit berfungsi)
+app.put('/user/update/:id', (req, res) => {
+    const id = req.params.id;
+    const { first_name, last_name, email } = req.body;
+    db.query(
+        "UPDATE user SET first_name = ?, last_name = ?, email = ? WHERE id = ?",
+        [first_name, last_name, email, id],
+        (err) => {
+            if (err) return res.status(500).json({ message: "Gagal update user" });
+            res.json({ message: "Data user berhasil diperbarui" });
+        }
+    );
+});
+
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

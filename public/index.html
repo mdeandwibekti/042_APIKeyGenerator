@@ -5,14 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Key Manager & Auth</title>
     <style>
-        /* Tetap gunakan style lama Anda, tambahkan margin untuk pemisah */
-        body { font-family: Arial, sans-serif; background: #02121b; color: #e8ffff; margin: 0; padding: 20px; }
-        .container { width: 700px; margin: auto; padding: 30px; background: rgba(0, 40, 60, 0.6); border-radius: 15px; box-shadow: 0 0 20px #00eaff55; border: 1px solid #0099cc; }
-        h2 { border-bottom: 2px solid #00d0ff; color: #00d0ff; margin-top: 30px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #066; background: #022530; color: #e8ffff; box-sizing: border-box;}
-        button { width: 100%; padding: 12px; background: linear-gradient(to right, #ff8000, #ff5500); border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 16px; margin-top: 5px;}
-        .btn-green { background: linear-gradient(to right, #006666, #009999); }
-        .notif { background: #004d40; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
+        /* Penyesuaian ke tema cerah elegan */
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: #f8f9fa; 
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(166, 124, 0, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 123, 255, 0.03) 0%, transparent 40%);
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { 
+            width: 700px; 
+            margin: auto; 
+            padding: 40px; 
+            background: #ffffff; 
+            border-radius: 4px; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(166, 124, 0, 0.15); 
+        }
+
+        h2 { 
+            border-bottom: 1px solid #e0e0e0; 
+            color: #a67c00; 
+            margin-top: 30px; 
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            padding-bottom: 10px;
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 0px; /* Sudut tajam untuk kesan formal */
+            border: none;
+            border-bottom: 1px solid #e0e0e0; 
+            background: transparent; 
+            color: #333; 
+            box-sizing: border-box;
+            transition: all 0.4s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-bottom: 1px solid #a67c00;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: transparent; 
+            border: 1px solid #ff8000; 
+            color: #ff8000; 
+            cursor: pointer; 
+            font-size: 12px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+            transition: all 0.4s ease;
+        }
+
+        button:hover {
+            background: #ff8000;
+            color: #fff;
+        }
+
+        .btn-green { 
+            border: 1px solid #a67c00;
+            color: #a67c00;
+            background: transparent;
+        }
+
+        .btn-green:hover {
+            background: #a67c00;
+            color: white;
+            box-shadow: 0 10px 20px rgba(166, 124, 0, 0.15);
+        }
+
+        .notif { 
+            background: #fffcf0; 
+            color: #a67c00;
+            padding: 10px; 
+            border-radius: 4px; 
+            margin-top: 10px; 
+            display: none; 
+            border: 1px solid rgba(166, 124, 0, 0.2);
+            font-size: 13px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #f0f0f0;
+            margin: 20px 0;
+        }
+
+        a {
+            color: #a67c00;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        a:hover {
+            border-bottom: 1px solid #a67c00;
+        }
     </style>
 </head>
 <body>
@@ -27,20 +131,27 @@
     <p class="notif" id="notifKey"></p>
 
     <h2>2. Registrasi User</h2>
-<form action="/register/user" method="POST">
-    <input type="text" name="first_name" placeholder="First Name (Wajib)" required>
-    <input type="text" name="last_name" placeholder="Last Name">
-    <input type="email" name="email" placeholder="Email (Wajib)" required>
-    <input type="password" name="password" placeholder="Buat Password" required>
-    <button type="submit" class="btn-green">Register User</button>
-</form>
+    <form action="/register/user" method="POST">
+        <input type="text" name="first_name" placeholder="First Name (Wajib)" required>
+        <input type="text" name="last_name" placeholder="Last Name">
+        <input type="email" name="email" placeholder="Email (Wajib)" required>
+        <input type="password" name="password" placeholder="Buat Password" required>
+        
+        <select name="role" required>
+            <option value="user">Daftar sebagai User</option>
+            <option value="admin">Daftar sebagai Admin</option>
+        </select>
 
-<div style="text-align:center; margin-top: 20px;">
-    <p>Sudah punya akun? <a href="/login-user.html" style="color:#00d0ff;">Klik di sini untuk Login</a></p>
+        <button type="submit" class="btn-green">Register User</button>
+    </form>
+
+    <div style="text-align:center; margin-top: 30px; font-size: 13px; color: #999;">
+        <p>Sudah punya akun? <a href="/login-user.html">Klik di sini untuk Login</a></p>
+    </div>
 </div>
-<script>
 
-// Fungsi Generate & Validate tetap sama
+<script>
+// Fungsi JavaScript tetap sama tanpa perubahan logika
 function generateKey() {
     fetch("/create", { method: "POST" })
     .then(res => res.json())
