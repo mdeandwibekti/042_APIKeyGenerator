@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 
+
 // DATABASE SEDERHANA (JSON FILE)
 const dbPath = path.join(__dirname, "..", "database.json");
 
@@ -73,8 +74,9 @@ router.post("/login-admin", (req, res) => {
     });
 });
 
-app.get("/dashboard-admin", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "dashboard-admin.html"));
+router.get("/dashboard-admin", (req, res) => {
+    // Gunakan ".." karena dashboard-admin.html berada di luar folder routes
+    res.sendFile(path.join(__dirname, "..", "public", "dashboard-admin.html"));
 });
 
 module.exports = router;

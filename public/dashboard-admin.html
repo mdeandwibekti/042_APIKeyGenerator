@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin</title>
+    <title>Dashboard Admin - CRUD User</title>
 
     <style>
         body {
@@ -62,6 +62,28 @@
             border-radius: 6px;
             cursor: pointer;
         }
+
+        /* Style untuk tombol Aksi */
+        .btn-edit { background: #ffc107; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        
+        /* Modal Style Sederhana */
+        #editModal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 10px;
+        }
+        .modal-content input { width: 95%; padding: 8px; margin: 10px 0; }
+        .modal-content button { padding: 10px; width: 100%; cursor: pointer; }
     </style>
 </head>
 
@@ -70,7 +92,6 @@
 <h1>Dashboard Admin</h1>
 
 <div class="wrapper">
-
     <div class="card">
         <button class="logout-btn" onclick="logout()">Logout</button>
         <h2>Admin Dashboard</h2>
@@ -84,7 +105,7 @@
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Start Date</th>
-                </tr>
+                    <th>Aksi</th> </tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -103,17 +124,25 @@
             </thead>
             <tbody></tbody>
         </table>
-
     </div>
+</div>
 
+<div id="editModal">
+    <div class="modal-content">
+        <h3>Edit User</h3>
+        <input type="hidden" id="editId">
+        <input type="text" id="editFirstName" placeholder="First Name">
+        <input type="text" id="editLastName" placeholder="Last Name">
+        <input type="email" id="editEmail" placeholder="Email">
+        <button onclick="saveUpdate()" style="background: #28a745; color: white; border: none;">Simpan Perubahan</button>
+        <button onclick="closeModal()" style="background: #6c757d; color: white; border: none; margin-top: 5px;">Batal</button>
+    </div>
 </div>
 
 <script>
-
 // =============================
-// LOAD USER LIST
+// LOAD USER LIST (UPDATED WITH ACTIONS)
 // =============================
-
 function loadUsers() {
     fetch("/get/users")
         .then(res => res.json())
@@ -129,6 +158,10 @@ function loadUsers() {
                         <td>${user.last_name || '-'}</td>
                         <td>${user.email}</td>
                         <td>${user.created_at?.split('T')[0] || '-'}</td>
+                        <td>
+                            <button class="btn-edit" onclick="openEditModal(${user.id}, '${user.first_name}', '${user.last_name || ''}', '${user.email}')">Edit</button>
+                            <button class="btn-delete" onclick="deleteUser(${user.id})">Hapus</button>
+                        </td>
                     </tr>
                 `;
             });
@@ -136,9 +169,59 @@ function loadUsers() {
 }
 
 // =============================
+// FUNGSI DELETE USER
+// =============================
+function deleteUser(id) {
+    if (confirm("Apakah Anda yakin ingin menghapus user ini?")) {
+        fetch(`/user/delete/${id}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                loadUsers(); // Refresh tabel
+            })
+            .catch(err => console.error("Error deleting user:", err));
+    }
+}
+
+// =============================
+// FUNGSI EDIT USER (MODAL)
+// =============================
+function openEditModal(id, fname, lname, email) {
+    document.getElementById("editId").value = id;
+    document.getElementById("editFirstName").value = fname;
+    document.getElementById("editLastName").value = lname;
+    document.getElementById("editEmail").value = email;
+    document.getElementById("editModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("editModal").style.display = "none";
+}
+
+function saveUpdate() {
+    const id = document.getElementById("editId").value;
+    const data = {
+        first_name: document.getElementById("editFirstName").value,
+        last_name: document.getElementById("editLastName").value,
+        email: document.getElementById("editEmail").value
+    };
+
+    fetch(`/user/update/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        closeModal();
+        loadUsers(); // Refresh tabel
+    });
+}
+
+// =============================
 // LOAD API KEY LIST
 // =============================
-
 function loadAPI() {
     fetch("/get/apikeys")
         .then(res => res.json())
@@ -152,16 +235,12 @@ function loadAPI() {
                         <td>${key.id}</td>
                         <td>${key.KeyValue}</td>
                         <td>${new Date() > new Date(key.out_of_date) ? 'expired' : 'active'}</td>
-                        <td>${key.out_of_date.split(" ")[0]}</td>
+                        <td>${key.out_of_date ? key.out_of_date.split(" ")[0] : '-'}</td>
                     </tr>
                 `;
             });
         });
 }
-
-// =============================
-// LOGOUT
-// =============================
 
 function logout() {
     window.location.href = "/admin.html";

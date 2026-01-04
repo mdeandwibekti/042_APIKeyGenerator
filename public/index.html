@@ -3,133 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Key Manager & User Registration</title>
+    <title>API Key Manager & Auth</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #02121b;
-            color: #e8ffff;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 700px;
-            margin: 40px auto;
-            padding: 30px;
-            background: rgba(0, 40, 60, 0.6);
-            border-radius: 15px;
-            box-shadow: 0 0 20px #00eaff55;
-            border: 1px solid #0099cc;
-        }
-
-        h2 {
-            border-bottom: 2px solid #00d0ff;
-            padding-bottom: 5px;
-            color: #00d0ff;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #066;
-            background: #022530;
-            color: #e8ffff;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(to right, #ff8000, #ff5500);
-            border: none;
-            border-radius: 8px;
-            font-size: 17px;
-            color: white;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            opacity: 0.85;
-        }
-
-        .btn-green {
-            background: linear-gradient(to right, #006666, #009999);
-        }
-
-        .notif {
-            background: #004d40;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-        }
+        /* Tetap gunakan style lama Anda, tambahkan margin untuk pemisah */
+        body { font-family: Arial, sans-serif; background: #02121b; color: #e8ffff; margin: 0; padding: 20px; }
+        .container { width: 700px; margin: auto; padding: 30px; background: rgba(0, 40, 60, 0.6); border-radius: 15px; box-shadow: 0 0 20px #00eaff55; border: 1px solid #0099cc; }
+        h2 { border-bottom: 2px solid #00d0ff; color: #00d0ff; margin-top: 30px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #066; background: #022530; color: #e8ffff; box-sizing: border-box;}
+        button { width: 100%; padding: 12px; background: linear-gradient(to right, #ff8000, #ff5500); border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 16px; margin-top: 5px;}
+        .btn-green { background: linear-gradient(to right, #006666, #009999); }
+        .notif { background: #004d40; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-
     <h2>1. API Key Manager</h2>
-
     <button onclick="generateKey()">Generate API Key Baru</button>
-
     <input type="text" id="resultKey" placeholder="Klik tombol untuk generate..." readonly>
-
     <hr>
-
     <input type="text" id="validateKey" placeholder="Tempel API key...">
     <button class="btn-green" onclick="validateKey()">Cek Validitas</button>
-
     <p class="notif" id="notifKey"></p>
 
     <h2>2. Registrasi User</h2>
-
-    <form action="/register/user" method="POST">
-        <input type="text" name="first_name" placeholder="First Name (Wajib)">
-        <input type="text" name="last_name" placeholder="Last Name">
-        <input type="email" name="email" placeholder="Email (Wajib)">
-        <button type="submit" class="btn-green">Register User</button>
-    </form>
-
-</div>
+<form action="/register/user" method="POST">
+    <input type="text" name="first_name" placeholder="First Name (Wajib)" required>
+    <input type="text" name="last_name" placeholder="Last Name">
+    <input type="email" name="email" placeholder="Email (Wajib)" required>
+    <input type="password" name="password" placeholder="Buat Password" required>
+    <button type="submit" class="btn-green">Register User</button>
+</form>
 
 <div style="text-align:center; margin-top: 20px;">
-    <a href="/admin.html" 
-       style="padding:10px 20px; background:#6c63ff; color:white; border-radius:6px; text-decoration:none;">
-       ⮕ Masuk ke Halaman Admin
-    </a>
+    <p>Sudah punya akun? <a href="/login-user.html" style="color:#00d0ff;">Klik di sini untuk Login</a></p>
 </div>
-
-
-
 <script>
+
+// Fungsi Generate & Validate tetap sama
 function generateKey() {
     fetch("/create", { method: "POST" })
     .then(res => res.json())
-    .then(data => {
-        document.getElementById("resultKey").value = data.apiKey;
-    });
+    .then(data => document.getElementById("resultKey").value = data.apiKey);
 }
 
 function validateKey() {
-    const apiKey = document.getElementById("validateKey").value;
-
     fetch("/check", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ apiKey })
+        body: JSON.stringify({ apiKey: document.getElementById("validateKey").value })
     })
     .then(res => res.json())
     .then(data => {
-        const notif = document.getElementById("notifKey");
-        notif.style.display = "block";
-        notif.innerText = data.message;
+        const n = document.getElementById("notifKey");
+        n.style.display = "block";
+        n.innerText = data.message;
+    });
+}
+
+function userLogin() {
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPass").value;
+
+    fetch("/login/user", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) window.location.href = "/dashboard-user";
+        else alert(data.message);
+    });
+}
+
+function loginUser() {
+    const email = document.getElementById("userEmail").value;
+    const password = document.getElementById("userPass").value;
+
+    fetch("/login/user", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) window.location.href = data.redirect;
+        else alert(data.message);
     });
 }
 </script>
-
 </body>
 </html>
