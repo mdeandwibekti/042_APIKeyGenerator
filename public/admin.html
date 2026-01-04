@@ -1,172 +1,101 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Registrasi</title>
+    <title>Admin Login</title>
+
     <style>
-        /* Tema Cyber Neon Teal */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0f12, #00151c);
-            color: #d9faff;
-            display: flex;
-            justify-content: center;
-            padding: 2rem 0;
+            font-family: Arial, sans-serif;
+            background: #02121b;
+            color: #e8ffff;
             margin: 0;
+            padding: 0;
         }
 
-        .container {
-            background: rgba(10, 22, 27, 0.75);
-            padding: 2rem;
+        .login-box {
+            width: 400px;
+            margin: 80px auto;
+            background: rgba(0, 40, 60, 0.6);
             border-radius: 15px;
-            width: 90%;
-            max-width: 420px;
-            border: 1px solid rgba(0, 255, 255, 0.25);
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            padding: 25px;
+            border: 1px solid #0099cc;
+            box-shadow: 0 0 20px #00eaff55;
         }
 
         h2 {
-            border-bottom: 2px solid rgba(0, 255, 255, 0.35);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            color: #00eaff;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #a8f6ff;
+            text-align: center;
+            color: #00d0ff;
         }
 
         input {
             width: 100%;
-            padding: 11px;
-            margin-bottom: 16px;
+            padding: 12px;
+            margin-top: 12px;
+            background: #022530;
+            border: 1px solid #066;
             border-radius: 8px;
-            border: 1px solid #0d3c46;
-            background-color: #05171d;
-            color: #c9faff;
-            transition: 0.25s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #00f7ff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.35);
+            color: #e8ffff;
         }
 
         button {
             width: 100%;
-            padding: 13px;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(to right, #006666, #009999);
             border: none;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        /* Tombol admin tetap orange namun lebih kontras */
-        .btn-orange {
-            background: linear-gradient(135deg, #ff7b00, #cc5d00);
             color: white;
-            box-shadow: 0 0 10px rgba(255, 140, 0, 0.25);
+            cursor: pointer;
         }
 
-        .btn-orange:hover {
-            background: linear-gradient(135deg, #ffa044, #d46c05);
-            box-shadow: 0 0 16px rgba(255, 140, 0, 0.55);
-        }
-
-        /* Message */
-        .message {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            padding: 10px;
-            border-radius: 6px;
-            display: none;
-        }
-
-        .success {
-            background: rgba(0, 255, 150, 0.15);
-            color: #8dffda;
-            display: block;
+        button:hover {
+            opacity: 0.85;
         }
 
         .error {
-            background: rgba(255, 0, 50, 0.15);
-            color: #ff9ba5;
-            display: block;
-        }
-
-        .nav-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #6df1ff;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .nav-link:hover {
-            color: #aefeff;
+            background: #661111;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
         }
     </style>
+
 </head>
 <body>
 
-<div class="container">
-    <h2>Panel Admin</h2>
-    <p style="color:#9deaff; font-size:0.9rem;">Registrasi Administrator Baru</p>
+<div class="login-box">
+    <h2>Admin Login</h2>
 
-    <label>Email Admin</label>
-    <input type="email" id="aEmail" placeholder="admin@system.com">
+    <input id="email" type="email" placeholder="Email Admin">
+    <input id="password" type="password" placeholder="Password">
 
-    <label>Password</label>
-    <input type="password" id="aPass" placeholder="Rahasia123">
+    <button onclick="login()">Login</button>
 
-    <button id="regAdminBtn" class="btn-orange">Daftar Admin</button>
-    <div id="adminMsg" class="message"></div>
-
-    <a href="/" class="nav-link">← Kembali ke Halaman Utama</a>
+    <p class="error" id="notifErr">Login gagal. Email / password salah!</p>
 </div>
 
 <script>
-    function showMsg(elId, text, isError = false) {
-        const el = document.getElementById(elId);
-        el.textContent = text;
-        el.className = isError ? 'message error' : 'message success';
-        setTimeout(() => { el.style.display = 'none'; }, 5000);
-    }
+function login() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
 
-    document.getElementById('regAdminBtn').addEventListener('click', async () => {
-        const payload = {
-            email: document.getElementById('aEmail').value,
-            password: document.getElementById('aPass').value
-        };
-
-        try {
-            const res = await fetch('/register/admin', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                showMsg('adminMsg', data.message);
-                document.getElementById('aEmail').value = '';
-                document.getElementById('aPass').value = '';
-            } else {
-                showMsg('adminMsg', data.error, true);
-            }
-        } catch {
-            showMsg('adminMsg', 'Error jaringan', true);
+    fetch("/admin/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, password: pass })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "/dashboard-admin";
+        } else {
+            document.getElementById("notifErr").style.display = "block";
         }
     });
+}
 </script>
 
 </body>

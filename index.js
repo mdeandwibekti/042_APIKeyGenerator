@@ -153,6 +153,11 @@ app.get("/dashboard-user", (req, res) => {
     });
 });
 
+app.get("/admin.", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard-admin.html"));
+});
+
+
 // ===========================
 // SERVER
 // ===========================

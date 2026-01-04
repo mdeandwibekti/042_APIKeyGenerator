@@ -1,34 +1,80 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const crypto = require('crypto');
+const path = require("path");
+const fs = require("fs");
 
-// Kita mengekspor fungsi yang menerima koneksi 'db'
-module.exports = (db) => {
+// DATABASE SEDERHANA (JSON FILE)
+const dbPath = path.join(__dirname, "..", "database.json");
 
-    // Pindahkan endpoint '/register/admin' ke sini
-    router.post('/register/admin', (req, res) => {
-        const { email, password } = req.body;
+// Buat file database jika belum ada
+if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify({ users: [], admins: [] }, null, 2));
+}
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email dan Password wajib diisi!' });
-        }
+function loadDB() {
+    return JSON.parse(fs.readFileSync(dbPath));
+}
 
-        // Hash password (SHA-256)
-        const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+function saveDB(data) {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
 
-        const sql = 'INSERT INTO admin (email, password_hash) VALUES (?, ?)';
+// ===============================
+// REGISTER ADMIN
+// ===============================
+router.post("/register-admin", (req, res) => {
+    const { username, password } = req.body;
 
-        db.query(sql, [email, passwordHash], (err, result) => {
-            if (err) {
-                console.error('Error Admin Register:', err);
-                if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(409).json({ error: 'Email admin sudah terdaftar!' });
-                }
-                return res.status(500).json({ error: 'Gagal mendaftarkan admin.' });
-            }
-            res.status(200).json({ message: 'Admin berhasil didaftarkan!', adminId: result.insertId });
-        });
+    const db = loadDB();
+
+    // cek jika username sudah ada
+    const existing = db.admins.find(a => a.username === username);
+    if (existing) return res.json({ success: false, message: "Admin sudah ada!" });
+
+    db.admins.push({ username, password });
+    saveDB(db);
+
+    res.json({ success: true, message: "Admin berhasil dibuat!" });
+});
+
+// ===============================
+// LOGIN USER
+// ===============================
+router.post("/login-user", (req, res) => {
+    const { username, password } = req.body;
+
+    const db = loadDB();
+    const user = db.users.find(u => u.username === username && u.password === password);
+
+    if (!user) return res.status(401).json({ success: false, message: "Akun tidak ditemukan!" });
+
+    res.json({
+        success: true,
+        message: "Login user berhasil!",
+        redirect: "/dashboard-user"
     });
+});
 
-    return router;
-};
+// ===============================
+// LOGIN ADMIN
+// ===============================
+router.post("/login-admin", (req, res) => {
+    const { username, password } = req.body;
+
+    const db = loadDB();
+    const admin = db.admins.find(a => a.username === username && a.password === password);
+
+    if (!admin) return res.status(401).json({ success: false, message: "Admin tidak ditemukan!" });
+
+    res.json({
+        success: true,
+        message: "Login admin berhasil!",
+        redirect: "/dashboard-admin"
+    });
+});
+
+app.get("/dashboard-admin", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard-admin.html"));
+});
+
+module.exports = router;
